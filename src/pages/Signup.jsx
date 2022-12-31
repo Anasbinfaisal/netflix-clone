@@ -1,32 +1,47 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import BackgroundImage from "../components/BackgroundImage";
 import Header from "../components/Header";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { FirebaseAuth } from "../utils/Firebase";
-import { createUserWithEmailAndPassword,onAuthStateChanged } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+} from "firebase/auth";
 
 function Signup() {
-  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+
+  const [showPassword, setShowPassword] = useState(false); //For condiitonal rendering of passoword field
+
   const [formValues, setFormValues] = useState({
     email: "",
     password: "",
   });
 
-  const handleSignup = async()=>{
+  const handleSignup = async () => {
     try {
-        const {email, password} = formValues;
-        await createUserWithEmailAndPassword(FirebaseAuth, email, password)
+      const { email, password } = formValues;
+      await createUserWithEmailAndPassword(FirebaseAuth, email, password);
     } catch (error) {
-        console.log(error);
+      console.log(error);
     }
-  }
+  }; //Callback function for signup button implementation
 
-  onAuthStateChanged(FirebaseAuth, (currentUser)=> {
-   if(currentUser) navigate('/')})
+  // onAuthStateChanged(FirebaseAuth, (currentUser) => {
+  //   if (currentUser) navigate("/");
+  // });
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    const unsubscribe = FirebaseAuth.onAuthStateChanged((user) => {
+      if (user) {
+        navigate("/");
+      }
+    });
 
+    // unsubscribing from the listener when the component is unmounting.
+    return unsubscribe;
+  }, []);
 
   return (
     <Container showPassword={showPassword}>
@@ -54,30 +69,29 @@ function Signup() {
                 })
               }
             />
-            {showPassword && 
-            <input type="password" name="password" placeholder="Password" 
-            onChange={(e) =>
-                setFormValues({
-                  ...formValues,
-                  [e.target.name]: e.target.value,
-                })
-              } />
-              }
-
+            {showPassword && (
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                onChange={(e) =>
+                  setFormValues({
+                    ...formValues,
+                    [e.target.name]: e.target.value,
+                  })
+                }
+              />
+            )}
+            {
+              //Conditional Rendering
+            }
             {!showPassword && (
               <button onClick={() => setShowPassword(!showPassword)}>
                 Get Started
               </button>
             )}
           </div>
-          <button onClick={handleSignup}
-        //   
-        //   {console.log(formValues)
-        //     createUserWithEmailAndPassword(FirebaseAuth, )
-        
-        // }
-
-          >Sign Up</button>
+          <button onClick={handleSignup}>Sign Up</button>
         </div>
       </div>
     </Container>
@@ -116,7 +130,9 @@ const Container = styled.div`
           padding: 1.5rem;
           font-size: 1.2rem;
           border: 1px solid black;
+
           &:focus {
+            //on clickig input field
             outline: none;
           }
         }
@@ -131,7 +147,7 @@ const Container = styled.div`
         }
       }
       button {
-        padding: 0.5rem 1rem;
+        padding: 1rem 1rem;
         background-color: #e50914;
         border: none;
         cursor: pointer;

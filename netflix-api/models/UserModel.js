@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
         unique: true,
         max: 50,
     },
+    
     likedMovies: Array,
 });
 

@@ -17,6 +17,6 @@ mongoose
     console.log("DB Connected");
   });
 
-app.use("/api/user", userRoutes)
+app.use("/api/user", userRoutes);
 
 app.listen(5000, console.log("server started"));

@@ -8,16 +8,19 @@ import NavBar from '../components/NavBar';
 import NotAvailable from '../components/NotAvailable';
 import SelectGenre from '../components/SelectGenre';
 import Slider from '../components/Slider';
-import { fetchMovies, getGenres } from '../store';
+import { fetchMovies, getGenres, updateCounter } from '../store';
 import { FirebaseAuth } from '../utils/Firebase';
 
 export default function TvShows() {
 
 
-    const [isscrolled, setIsscrolled] = useState(false);
+  const [isscrolled, setIsscrolled] = useState(false);
+  // const [loggedIn, setLoggedIn] = useState(undefined);
+  
     const movies = useSelector((state)=> state.netflix.movies);
     const genres = useSelector((state) => state.netflix.genres);
-    const genresLoaded = useSelector((state)=> state.netflix.genresLoaded);
+  const genresLoaded = useSelector((state) => state.netflix.genresLoaded);
+  // const counter = useSelector((state) => state.netflix.counter);
   
     const navigate = useNavigate();
    const dispatch = useDispatch();
@@ -35,11 +38,18 @@ export default function TvShows() {
       }
     }, [genresLoaded]);
   
+    useEffect(() => {
+      const unsubscribe = FirebaseAuth.onAuthStateChanged(user => {
+          if (!user) {
+              navigate("/login");
+          }
+      });
+      
+      // unsubscribing from the listener when the component is unmounting.
+      return unsubscribe;
+  }, [])
   
-  
-    onAuthStateChanged(FirebaseAuth, (currentUser) => {
-      if (!currentUser) navigate("/login");
-    });
+
   
     window.onscroll = () => {
       setIsscrolled(window.pageYOffset === 0  ? false : true);
@@ -56,7 +66,8 @@ export default function TvShows() {
          
 
           <div className='data'>
-              <SelectGenre genres={genres} type="tv" />
+        <SelectGenre genres={genres} type="tv" />
+        {/* <button onClick={()=> dispatch(updateCounter(counter))}>Update Counter</button> */}
               {
                   movies.length ? <Slider movies={movies}/> : <h1 className="not-available">
                   No TV Shows avaialble for the selected genre. Please select a

@@ -1,76 +1,82 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import logo from "../assets/logo.png";
-import {FaSearch, FaPowerOff} from 'react-icons/fa';
-import { FirebaseAuth } from '../utils/Firebase';
-import { signOut, onAuthStateChanged } from 'firebase/auth';
+import { FaSearch, FaPowerOff } from "react-icons/fa";
+import { FirebaseAuth } from "../utils/Firebase";
+import { signOut, getAuth } from "firebase/auth";
 
-function NavBar({isScrolled}) {
-
+function NavBar({ isScrolled }) {
   const links = [
-    {name: "Home", link:"/", },
-    {name: "Tv Shows", link:"/tv", },
-    {name: "Movies", link:"/movies", },
-    {name:"My List", link:"/mylist", },
-  ]
+    { name: "Home", link: "/" },
+    { name: "Tv Shows", link: "/tv" },
+    { name: "Movies", link: "/movies" },
+    { name: "My List", link: "/mylist" },
+  ];
 
-  const navigate = useNavigate();
+  const auth = getAuth();
 
-  onAuthStateChanged(FirebaseAuth, (currentUser) => {
-    if (!currentUser) navigate("/login");
-  });
 
   const [showSearch, setShowSearch] = useState(false);
   const [inputHover, setInputHover] = useState(false);
+  const navigate = useNavigate();
+
   return (
     <Container>
-      <nav className= {`${isScrolled ? "scrolled" : ""} flex`}>
-  <div className="left flex a-center">
-    <div className="brand flex a-center j-center">
-      <img src={logo} alt="logo" />
-    </div>
+      <nav className={`${isScrolled ? "scrolled" : ""} flex`}>
+        <div className="left flex a-center">
+          <div className="brand flex a-center j-center">
+            <img src={logo} alt="logo" />
+          </div>
 
-    <ul className="links flex">
-      {
-        links.map(({name,link})=> (
-          <li key={name}>
-            <Link to={link}>{name}</Link>
-          </li>
-        ))
-      }
-    </ul>
-  </div>
+          <ul className="links flex">
+            {links.map(({ name, link }) => (
+              <li key={name}>
+                <Link to={link}>{name}</Link>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-  <div className="right flex a-center">
-    <div className={ `search ${showSearch ? "show-search" : ""}` }>
-      <button
-      onFocus={()=> setShowSearch(true)}
-      onBlur={()=> {
-        if(!inputHover) setShowSearch(false);
-      }}
-      >
-        <FaSearch/>
-      </button>
-      <input
-      type='text'
-      placeholder='Search'
-      onMouseEnter={()=> setInputHover(true)}
-      onMouseLeave={() => setInputHover(false)}
-      onBlur={() => {
-        setShowSearch(false);
-        setInputHover(false);
-      }}/>
-    </div>
+        <div className="right flex a-center">
+          <div className={`search ${showSearch ? "show-search" : ""}`}>
+            <button
+              onFocus={() => setShowSearch(true)}
+              onBlur={() => {
+                if (!inputHover) setShowSearch(false);
+              }}>
+              <FaSearch />
+            </button>
+            <input
+              type="text"
+              placeholder="Search"
+              onMouseEnter={() => setInputHover(true)}
+              onMouseLeave={() => setInputHover(false)}
+              onBlur={() => {
+                setShowSearch(false);
+                setInputHover(false);
+              }}
+            />
+          </div>
 
-    <button onClick={()=> signOut(FirebaseAuth)}>
-      <FaPowerOff />
-    </button>
-  </div>
+          <button
+            onClick={() => {
+              // signOut(FirebaseAuth);
+              signOut(auth).then(() => {
+                console.log(FirebaseAuth.currentUser)
 
-</nav>
+              }).catch((error) => {
+                console.log(error)
+
+              });
+              navigate("/login");
+            }}>
+            <FaPowerOff />
+          </button>
+        </div>
+      </nav>
     </Container>
-  )
+  );
 }
 
 const Container = styled.div`
@@ -166,4 +172,4 @@ const Container = styled.div`
   }
 `;
 
-export default NavBar
+export default NavBar;

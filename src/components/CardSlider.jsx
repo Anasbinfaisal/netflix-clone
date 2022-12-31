@@ -3,60 +3,61 @@ import Card from "./Card";
 import styled from "styled-components";
 import { AiOutlineLeft, AiOutlineRight } from "react-icons/ai";
 
-export default React.memo(
-  function CardSlider({ title, data }) {
-    const listRef = useRef();
-    const [showControls, setShowControls] = useState(false);
-    const [sliderPosition, setSliderPosition] = useState(0);
+//React memo skips rendering for a component if props have not changed.
+export default React.memo(function CardSlider({ title, data }) {
+  const listRef = useRef(); //For persisting values not required for re-rendering
 
-    const handleDirection = (direction) => {
-      let distance = listRef.current.getBoundingClientRect().x - 70;
-    
-      if (direction === "left" && sliderPosition > 0) {
-        listRef.current.style.transform = `translateX(${230 + distance}px)`;
+  const [showControls, setShowControls] = useState(false); //show control buttons
 
-        setSliderPosition(sliderPosition - 1);
-      }
+  const [sliderPosition, setSliderPosition] = useState(0);
 
-      if (direction === "right" && sliderPosition < 4) {
-        listRef.current.style.transform = `translateX(${-230 + distance}px)`;
+  const handleDirection = (direction) => {
+    let distance = listRef.current.getBoundingClientRect().x - 70; //get current position
 
-        setSliderPosition(sliderPosition + 1);
-      }
-    };
+    if (direction === "left" && sliderPosition > 0) {
+      listRef.current.style.transform = `translateX(${230 + distance}px)`; //move left
+      setSliderPosition(sliderPosition - 1);
+    }
 
-    return (
-      <Container
-        className="flex column"
-        onMouseEnter={() => setShowControls(true)}
-        onMouseLeave={() => setShowControls(false)}
-      >
-        <h1>{title}</h1>
-        <div className="wrapper">
-          <div
-            className={`slider-action left ${!showControls ? "none" : ""
-              } flex j-center a-center`}
-          >
-            <AiOutlineLeft onClick={() => handleDirection("left")} />
-          </div>
-          <div className="slider flex" ref={listRef}>
-            {data.map((movie, index) => {
-              return <Card movieData={movie} index={index} key={movie.id} />;
-            })}
-          </div>
+    if (direction === "right" && sliderPosition < 4) {
+      listRef.current.style.transform = `translateX(${-230 + distance}px)`; //move right
+      setSliderPosition(sliderPosition + 1);
+    }
+  };
 
-          <div
-            className={`slider-action right ${!showControls ? "none" : ""
-              } flex j-center a-center`}
-          >
-            <AiOutlineRight onClick={() => handleDirection("right")} />
-          </div>
+  return (
+    <Container
+      className="flex column"
+      onMouseEnter={() => setShowControls(true)}
+      onMouseLeave={() => setShowControls(false)}
+    >
+      <h1>{title}</h1>
+
+      <div className="wrapper">
+        <div
+          className={`slider-action left ${
+            !showControls ? "none" : ""
+          } flex j-center a-center`}
+        >
+          <AiOutlineLeft onClick={() => handleDirection("left")} />
         </div>
-      </Container>
-    );
-  }
-);
- 
+        <div className="slider flex" ref={listRef}>
+          {data.map((movie, index) => {
+            return <Card movieData={movie} index={index} key={movie.id} />;
+          })}
+        </div>
+
+        <div
+          className={`slider-action right ${
+            !showControls ? "none" : ""
+          } flex j-center a-center`}
+        >
+          <AiOutlineRight onClick={() => handleDirection("right")} />
+        </div>
+      </div>
+    </Container>
+  );
+});
 
 const Container = styled.div`
   gap: 1rem;

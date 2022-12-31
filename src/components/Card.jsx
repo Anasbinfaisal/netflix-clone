@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import video from "../assets/video.mp4";
@@ -19,10 +19,24 @@ export default function Card({ movieData, isLiked = false }) {
   const [email, setEmail] = useState(undefined);
   const dispatch = useDispatch();
 
-  onAuthStateChanged(FirebaseAuth, (currentUser) => {
-    if (currentUser) setEmail(currentUser.email);
-    else navigate("/");
-  });
+  
+  useEffect(() => {
+    const unsubscribe = FirebaseAuth.onAuthStateChanged((user) => {
+      if (user) {
+        setEmail(user.email);
+        
+      } else {
+        navigate("/");
+      }
+    });
+
+    // unsubscribing from the listener when the component is unmounting.
+    return unsubscribe;
+  }, []);
+  // onAuthStateChanged(FirebaseAuth, (currentUser) => {
+  //   if (currentUser) setEmail(currentUser.email);
+  //   else navigate("/");
+  // });
 
   const addToList = async () => {
     try {
@@ -44,6 +58,7 @@ export default function Card({ movieData, isLiked = false }) {
         src={`https://image.tmdb.org/t/p/w500${movieData.image}`}
         alt="movie"
       />
+
       {isHovered && (
         <div className="hover">
           <div className="image-video-container">
@@ -165,7 +180,7 @@ const Container = styled.div`
       gap: 0.5rem;
     }
     .icons {
-      .controls {
+      .control {
         display: flex;
         gap: 1rem;
       }
@@ -175,7 +190,7 @@ const Container = styled.div`
         transition: 0.3s ease-in-out;
 
         &:hover {
-          color: #b8b8b8;
+          color: #b8b8b8d2;
         }
       }
     }
@@ -183,8 +198,10 @@ const Container = styled.div`
     .genres {
       ul {
         gap: 1rem;
+        
         li {
           padding-right: 0.7rem;
+          width: max-content;
 
           &:first-of-type {
             list-style-type: none;

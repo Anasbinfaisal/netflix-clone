@@ -10,14 +10,15 @@ export default function SelectGenre({ genres, type }) {
     <Select
       className="flex"
       onChange={(e) => {
-        dispatch(fetchMoviesByGenre({ genres, genre: e.target.value, type }));
+        dispatch(fetchMoviesByGenre({genre: e.target.value, type })); //get movies by genre from redux store action 
       }}
     >
-      {genres.map((genre) => (
+      { genres.map((genre) => (
         <option value={genre.id} key={genre.id}>
           {genre.name}
         </option>
-      ))}
+      )) //Display genres in drop down
+      } 
     </Select>
   );
 }
