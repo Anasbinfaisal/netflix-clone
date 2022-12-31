@@ -28,7 +28,7 @@ function Login() {
       await signInWithEmailAndPassword(FirebaseAuth, email, password);
       // unsubscribe();
     } catch (error) {
-      console.log(error.code);
+      alert(error);
     }
   };
 
